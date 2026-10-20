@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f7fb">
+  <title>Python SOP</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="Python SOP home"><span class="brand-mark">S</span><span>Python SOP</span></a>
+      <div class="side-caption">WORKSPACE</div>
+      <button class="side-link active" id="nav-workspace"><span class="side-icon">▦</span> SOP workspace</button>
+      <div class="sidebar-bottom"><span class="local-dot"></span> Saved in this browser</div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="breadcrumb">Workspace <span>/</span> New SOP</div>
+        <button class="button button-light" id="folderButton"><span>📁</span> Save folder</button>
+      </header>
+
+      <section class="page-heading">
+        <div><div class="eyebrow">SOP BUILDER</div><h1>Create a step-by-step guide</h1>
+          <p>Capture a screen or add images, then label and organize each step.</p></div>
+        <button class="button button-primary" id="copyWordButton"><span>▣</span> Copy for Word</button>
+      </section>
+
+      <section class="capture-card">
+        <div class="capture-head"><div class="capture-symbol">⌕</div><div><h2>Capture images</h2><p>Choose a screen to share, or upload screenshots from your computer.</p></div></div>
+        <div class="capture-actions">
+          <button class="button button-primary" id="shareButton"><span>▣</span> Share screen</button>
+          <button class="button button-light" id="captureButton" disabled><span>◎</span> Capture</button>
+          <button class="button button-light" id="uploadButton"><span>↑</span> Upload images</button>
+          <input id="fileInput" type="file" accept="image/*" multiple hidden>
+          <button class="button button-quiet" id="stopShareButton" hidden>Stop sharing</button>
+          <span class="capture-hint" id="captureHint">Your images stay in this browser.</span>
+        </div>
+        <div class="share-preview" id="sharePreview" hidden><video id="screenVideo" autoplay muted playsinline></video><span>Screen share preview</span></div>
+      </section>
+
+      <section class="steps-section">
+        <div class="section-heading"><div><h2>Steps <span class="count-pill" id="stepCount">0</span></h2><p>Select an image to edit its name, details, or markup.</p></div>
+          <button class="text-button" id="clearAllButton" hidden>Clear all</button></div>
+        <div class="empty-state" id="emptyState"><div class="empty-art">▧</div><h3>No steps yet</h3><p>Share your screen or upload images to start building your SOP.</p></div>
+        <div class="steps-grid" id="stepsGrid"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="editDialog" class="edit-dialog">
+    <form method="dialog" class="dialog-shell" id="editForm">
+      <header class="dialog-header"><div><div class="eyebrow">STEP <span id="editStepNumber">01</span></div><h2>Edit image</h2></div><button type="button" class="icon-button" id="closeEditButton" aria-label="Close">×</button></header>
+      <div class="editor-layout">
+        <div class="editor-canvas-wrap"><canvas id="editorCanvas" width="900" height="540"></canvas></div>
+        <aside class="editor-sidebar">
+          <label class="field-label" for="imageName">Image name</label><input id="imageName" class="text-input" maxlength="120" required>
+          <label class="field-label" for="imageDescription">Description</label><textarea id="imageDescription" class="text-input description-input" rows="5" placeholder="Describe this step..."></textarea>
+          <div class="editor-tools"><span class="field-label">Markup</span><div class="tool-row">
+            <button type="button" class="button button-light tool-button selected" id="cropModeButton">⌗ Crop</button>
+            <button type="button" class="button button-light tool-button" id="redModeButton">▱ Red box</button>
+          </div><button type="button" class="button button-light undo-button" id="undoButton">↶ Undo</button>
+          <p class="tool-note" id="toolNote">Drag on the image to select a crop area.</p></div>
+          <div class="editor-navigation"><button type="button" class="button button-light" id="previousButton">← Previous</button><span id="imagePosition">1 of 1</span><button type="button" class="button button-light" id="nextButton">Next →</button></div>
+        </aside>
+      </div>
+      <footer class="dialog-footer"><button type="button" class="button button-light" id="deleteImageButton">Delete image</button><span class="footer-spacer"></span><button type="button" class="button button-light" id="cancelEditButton">Cancel</button><button type="submit" class="button button-primary" id="saveImageButton">Save changes</button></footer>
+    </form>
+  </dialog>
+
+  <div class="countdown" id="countdown" hidden><span id="countdownNumber">3</span><p>Get ready to capture</p></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
