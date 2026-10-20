@@ -108,7 +108,7 @@ async function refreshTabPreview(silent = false) {
     $('tabPreview').src = dataUrl; $('tabPreview').hidden = false; $('previewPlaceholder').hidden = true;
     return true;
   } catch (error) {
-    if (!silent) toast('Click the Python SOP toolbar icon on the page you want to preview, then refresh.');
+    if (!silent) toast('Click the Sara SOP toolbar icon on the page you want to preview, then refresh.');
     return false;
   } finally { state.previewBusy = false; }
 }
@@ -175,10 +175,10 @@ function drawEditor(active = null) {
   const canvas = $('editorCanvas'); const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height); if (!state.image) return;
   ctx.drawImage(state.image, 0, 0, canvas.width, canvas.height);
-  if (state.crop) { const [x1,y1,x2,y2] = state.crop; ctx.strokeStyle = '#3478f6'; ctx.lineWidth = 3; ctx.strokeRect(x1*state.scale,y1*state.scale,(x2-x1)*state.scale,(y2-y1)*state.scale); }
+  if (state.crop) { const [x1,y1,x2,y2] = state.crop; ctx.strokeStyle = '#741b35'; ctx.lineWidth = 3; ctx.strokeRect(x1*state.scale,y1*state.scale,(x2-x1)*state.scale,(y2-y1)*state.scale); }
   ctx.strokeStyle = '#ed3434'; ctx.lineWidth = Math.max(3, 3/state.scale);
   for (const [x1,y1,x2,y2] of state.boxes) ctx.strokeRect(x1*state.scale,y1*state.scale,(x2-x1)*state.scale,(y2-y1)*state.scale);
-  if (active) { ctx.strokeStyle = state.mode === 'red' ? '#ed3434' : '#3478f6'; ctx.lineWidth = 3; ctx.strokeRect(active.x,active.y,active.w,active.h); }
+  if (active) { ctx.strokeStyle = state.mode === 'red' ? '#ed3434' : '#741b35'; ctx.lineWidth = 3; ctx.strokeRect(active.x,active.y,active.w,active.h); }
 }
 function updateEditorControls() {
   $('cropModeButton').classList.toggle('selected', state.mode === 'crop'); $('redModeButton').classList.toggle('selected', state.mode === 'red');

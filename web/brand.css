@@ -1,0 +1,26 @@
+:root {
+  color-scheme: light;
+  --blue: #741b35;
+  --muted: #77666c;
+  --line: #e8dde1;
+  --shadow: 0 12px 32px rgba(59, 19, 34, .09);
+}
+
+body { color: #292126; background: #fbf8f9; }
+.sidebar, .capture-card, .steps-section, .step-card, .edit-dialog { background: #fff; }
+.sidebar { border-color: #e8dde1; }
+.brand-mark, .button-primary, .capture-button { color: #fff; background: #741b35; }
+.start-round { color: #fff; background: linear-gradient(145deg, #8c3b54, #5c142a); }
+.button-primary:hover:not(:disabled), .capture-button:hover { background: #5c142a; }
+.button-light { color: #514148; border-color: #e5d8dd; }
+.button-light:hover:not(:disabled) { background: #fbf6f8; border-color: #d7c4cb; }
+.button-quiet, .text-button, .back { color: #741b35; }
+.side-link { color: #64162c; background: #f4e9ed; }
+.count-pill, .step-index, .tool-button.selected { color: #64162c; background: #f4e9ed; border-color: #e0cdd4; }
+.preview-frame, .editor-canvas-wrap, .step-image, .step-thumb { background: #f5eff1; }
+.empty-state { background: #fff; border-color: #e4d8dd; }
+.step-card { border-color: #e8dde1; }
+.text-input:focus, textarea:focus { border-color: #a8677c; box-shadow: 0 0 0 3px #741b3519; }
+.countdown { background: #291c21dc; }
+.toast { background: #291c21; }
+.sidebar-bottom { color: #77666c; }

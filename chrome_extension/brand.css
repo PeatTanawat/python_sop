@@ -1,0 +1,20 @@
+:root {
+  color-scheme: light;
+  --blue: #741b35;
+  --muted: #77666c;
+  --line: #e8dde1;
+}
+
+body { color: #292126; background: #fbf8f9; }
+.brand-mark, .button-primary, .capture-button { color: #fff; background: #741b35; }
+.start-round { color: #fff; background: linear-gradient(145deg, #8c3b54, #5c142a); }
+.button-primary:hover, .capture-button:hover { background: #5c142a; }
+.back-button, .icon-button, .small-button, .button-light { color: #514148; border-color: #e5d8dd; }
+.button-light:hover { background: #fbf6f8; border-color: #d7c4cb; }
+.count-pill, .tool-button.selected { color: #64162c; background: #f4e9ed; border-color: #e0cdd4; }
+.preview-frame, .editor-canvas-wrap, .step-thumb { background: #f5eff1; }
+.preview-card, .steps-section, .description-section { border-color: #e8dde1; }
+.text-input:focus, textarea:focus { border-color: #a8677c; box-shadow: 0 0 0 3px #741b3519; }
+.delete-row { color: #8a243d; background: #f8e9ed; }
+.copyright-footer { padding: 8px 0 2px; color: #77666c; text-align: center; font-size: 10px; }
+.toast { background: #291c21; }
