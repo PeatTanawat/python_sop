@@ -124,7 +124,7 @@ function loadEditorImage() {
     canvas.width = Math.round(image.naturalWidth * state.scale); canvas.height = Math.round(image.naturalHeight * state.scale);
     state.offsetX = 0; state.offsetY = 0; drawEditor();
   };
-  image.src = blobUrl(step.blob);
+  image.src = blobUrl(step);
   $('editStepNumber').textContent = String(state.editing + 1).padStart(2, '0'); $('imagePosition').textContent = `${state.editing + 1} of ${state.steps.length}`;
   $('previousButton').disabled = state.editing === 0; $('nextButton').disabled = state.editing === state.steps.length - 1;
 }
@@ -198,5 +198,10 @@ $('undoButton').addEventListener('click',()=>{const previous=state.undoStack.pop
 $('previousButton').addEventListener('click',()=>moveEditor(-1));$('nextButton').addEventListener('click',()=>moveEditor(1));$('deleteImageButton').addEventListener('click',deleteCurrent);
 $('editForm').addEventListener('submit',event=>{event.preventDefault();saveCurrentEditor();});
 $('closeEditButton').addEventListener('click',()=>$('editDialog').close());$('cancelEditButton').addEventListener('click',()=>$('editDialog').close());
+window.addEventListener('keydown',event=>{
+  const target=event.target;
+  const typing=target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+  if(event.code==='Space'&&state.stream&&!typing&&!$('editDialog').open){event.preventDefault();captureScreen();}
+});
 window.addEventListener('beforeunload',stopScreenShare);
 (async()=>{try{state.steps=await db('getAll');state.steps.sort((a,b)=>a.createdAt-b.createdAt);render();}catch(error){toast('Browser storage is unavailable.');}})();
