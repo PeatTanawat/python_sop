@@ -1,6 +1,6 @@
 # Python SOP Chrome Side Panel
 
-The extension opens Python SOP in Chrome's right side panel. It can capture the active Chrome tab, edit screenshots, draw red boxes, and copy the steps into Word.
+The extension opens Python SOP in Chrome's right side panel. It can show a live preview of the active Chrome tab (up to two frames per second), capture screenshots, edit them, draw red boxes, and copy the steps into Word.
 
 ## Install
 

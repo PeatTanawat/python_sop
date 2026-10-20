@@ -1,6 +1,6 @@
 const DB_NAME = 'python-sop-workspace';
 const STORE = 'steps';
-const state = { steps: [], stream: null, directory: null, editing: null, mode: 'crop', boxes: [], crop: null, undoStack: [], drag: null, image: null, scale: 1, offsetX: 0, offsetY: 0, toastTimer: null, urls: new Map() };
+const state = { steps: [], stream: null, directory: null, editing: null, mode: 'crop', boxes: [], crop: null, undoStack: [], drag: null, image: null, scale: 1, offsetX: 0, offsetY: 0, toastTimer: null, previewTimer: null, previewBusy: false, urls: new Map() };
 const $ = (id) => document.getElementById(id);
 const dbPromise = new Promise((resolve, reject) => {
   const request = indexedDB.open(DB_NAME, 1);
@@ -85,10 +85,32 @@ async function saveImagesToFolder() {
   try { for (const step of state.steps) await saveToFolder(step); toast(`${state.steps.length} image(s) saved to ${state.directory.name}.`); }
   catch (error) { toast(error.message || 'Could not save images to this folder.'); }
 }
-function showWorkspace() { $('homeScreen').hidden = true; $('workspace').hidden = false; refreshTabPreview(); }
-async function refreshTabPreview() {
-  try { const dataUrl = await chrome.tabs.captureVisibleTab(); $('tabPreview').src = dataUrl; $('tabPreview').hidden = false; $('previewPlaceholder').hidden = true; }
-  catch (error) { toast('Click the Python SOP toolbar icon on a web page, then refresh the preview.'); }
+function showWorkspace() { $('homeScreen').hidden = true; $('workspace').hidden = false; startLiveTabPreview(); }
+function stopLiveTabPreview() { clearInterval(state.previewTimer); state.previewTimer = null; }
+function startLiveTabPreview() {
+  stopLiveTabPreview();
+  state.previewTimer = setInterval(async () => {
+    const updated = await refreshTabPreview(true);
+    if (!updated) {
+      stopLiveTabPreview();
+      $('previewPlaceholder').textContent = 'Preview paused. Click refresh to try again.';
+      $('previewPlaceholder').hidden = false;
+      $('tabPreview').hidden = true;
+    }
+  }, 600);
+  refreshTabPreview(true);
+}
+async function refreshTabPreview(silent = false) {
+  if (state.previewBusy) return true;
+  state.previewBusy = true;
+  try {
+    const dataUrl = await chrome.tabs.captureVisibleTab();
+    $('tabPreview').src = dataUrl; $('tabPreview').hidden = false; $('previewPlaceholder').hidden = true;
+    return true;
+  } catch (error) {
+    if (!silent) toast('Click the Python SOP toolbar icon on the page you want to preview, then refresh.');
+    return false;
+  } finally { state.previewBusy = false; }
 }
 async function shareScreen() {
   try {
@@ -213,8 +235,8 @@ const editorCanvas=$('editorCanvas');
 editorCanvas.addEventListener('pointerdown',event=>{if(!state.image)return;const rect=editorCanvas.getBoundingClientRect();const x=(event.clientX-rect.left)*editorCanvas.width/rect.width,y=(event.clientY-rect.top)*editorCanvas.height/rect.height;state.drag={x,y};editorCanvas.setPointerCapture(event.pointerId);});
 editorCanvas.addEventListener('pointermove',event=>{if(!state.drag)return;const rect=editorCanvas.getBoundingClientRect();const x=(event.clientX-rect.left)*editorCanvas.width/rect.width,y=(event.clientY-rect.top)*editorCanvas.height/rect.height;drawEditor({x:state.drag.x,y:state.drag.y,w:x-state.drag.x,h:y-state.drag.y});});
 editorCanvas.addEventListener('pointerup',event=>{if(!state.drag)return;const rect=editorCanvas.getBoundingClientRect();const x=(event.clientX-rect.left)*editorCanvas.width/rect.width,y=(event.clientY-rect.top)*editorCanvas.height/rect.height;const start=state.drag;state.drag=null;const before={boxes:structuredClone(state.boxes),crop:state.crop&&[...state.crop]};if(Math.abs(x-start.x)>5&&Math.abs(y-start.y)>5){const coords=[Math.round(Math.min(start.x,x)/state.scale),Math.round(Math.min(start.y,y)/state.scale),Math.round(Math.max(start.x,x)/state.scale),Math.round(Math.max(start.y,y)/state.scale)];if(state.mode==='red')state.boxes.push(coords);else state.crop=coords;state.undoStack.push(before);}drawEditor();updateEditorControls();});
-$('startButton').addEventListener('click',showWorkspace);$('homeButton').addEventListener('click',()=>{$('workspace').hidden=true;$('homeScreen').hidden=false;});
-$('previewRefreshButton').addEventListener('click',refreshTabPreview);$('captureTabButton').addEventListener('click',captureCurrentTab);
+$('startButton').addEventListener('click',showWorkspace);$('homeButton').addEventListener('click',()=>{stopLiveTabPreview();$('workspace').hidden=true;$('homeScreen').hidden=false;});
+$('previewRefreshButton').addEventListener('click',async()=>{if(await refreshTabPreview())startLiveTabPreview();});$('captureTabButton').addEventListener('click',captureCurrentTab);
 $('addRowButton').addEventListener('click',()=>$('fileInput').click());$('fileInput').addEventListener('change',event=>{uploadFiles(event.target.files);event.target.value='';});
 $('folderButton').addEventListener('click',chooseFolder);$('saveImagesButton').addEventListener('click',saveImagesToFolder);$('copyWordButton').addEventListener('click',copyForWord);$('clearAllButton').addEventListener('click',clearAll);
 $('sopDescription').value=localStorage.getItem('python-sop-description')||'';$('sopDescription').addEventListener('input',event=>localStorage.setItem('python-sop-description',event.target.value));
@@ -223,5 +245,5 @@ $('undoButton').addEventListener('click',()=>{const previous=state.undoStack.pop
 $('previousButton').addEventListener('click',()=>moveEditor(-1));$('nextButton').addEventListener('click',()=>moveEditor(1));$('deleteImageButton').addEventListener('click',deleteCurrent);
 $('editForm').addEventListener('submit',event=>{event.preventDefault();saveCurrentEditor();});
 $('closeEditButton').addEventListener('click',()=>$('editDialog').close());$('cancelEditButton').addEventListener('click',()=>$('editDialog').close());
-window.addEventListener('beforeunload',()=>{state.stream?.getTracks().forEach(track=>track.stop());});
+window.addEventListener('beforeunload',()=>{stopLiveTabPreview();state.stream?.getTracks().forEach(track=>track.stop());});
 (async()=>{try{state.steps=await db('getAll');state.steps.sort((a,b)=>a.createdAt-b.createdAt);render();}catch(error){toast('Browser storage is unavailable.');}})();
