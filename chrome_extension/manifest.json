@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Python SOP Capture",
+  "version": "1.0.0",
+  "description": "Capture Chrome tabs and organize screenshots into SOP steps.",
+  "permissions": ["activeTab", "sidePanel"],
+  "action": {
+    "default_title": "Open Python SOP"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  }
+}
