@@ -10,7 +10,7 @@ The extension opens Python SOP in Chrome's right side panel. It can capture the 
 4. Click **Load unpacked** and select the unzipped `chrome_extension` folder.
 5. Click the Python SOP icon in Chrome's toolbar. The workspace opens on the right. If you already loaded an earlier version, click its **Reload** button first.
 
-Chrome will ask to let the extension read and capture pages on all websites. Allow this permission to use **Capture**; Chrome still blocks protected pages such as `chrome://` pages and the Chrome Web Store. The extension captures a page only when you click its capture controls.
+To capture a page, open it first and click the Python SOP toolbar icon. This grants temporary access to that tab for the capture. Opening Python SOP from Chrome's side panel menu does not grant access to the tab. Chrome still blocks protected pages such as `chrome://` pages and the Chrome Web Store.
 
 ## Use
 
