@@ -43,25 +43,23 @@ function render() {
   $('emptyState').hidden = state.steps.length > 0;
   $('clearAllButton').hidden = state.steps.length === 0;
   for (const [index, step] of state.steps.entries()) {
-    const card = document.createElement('article'); card.className = 'step-card'; card.tabIndex = 0;
-    const imageWrap = document.createElement('div'); imageWrap.className = 'step-image';
-    const image = document.createElement('img'); image.src = blobUrl(step); image.alt = step.name; imageWrap.append(image);
-    const info = document.createElement('div'); info.className = 'step-info';
-    const top = document.createElement('div'); top.className = 'step-topline';
-    const number = document.createElement('span'); number.className = 'step-index'; number.textContent = String(index + 1).padStart(2, '0');
-    const title = document.createElement('span'); title.className = 'step-title'; title.textContent = step.name;
-    const description = document.createElement('div'); description.className = 'step-description'; description.textContent = step.description || 'Add a description';
-    top.append(number, title); info.append(top, description); card.append(imageWrap, info);
-    card.addEventListener('click', () => openEditor(step.id));
-    card.addEventListener('keydown', (event) => { if (event.key === 'Enter') openEditor(step.id); });
-    grid.append(card);
+    const row = document.createElement('article'); row.className = 'step-row';
+    const image = document.createElement('img'); image.className = 'step-thumb'; image.src = blobUrl(step); image.alt = step.name; image.title = 'Click to crop or mark up';
+    image.addEventListener('click', () => openEditor(step.id));
+    const name = document.createElement('input'); name.className = 'step-name'; name.value = step.name.replace(/\.png$/i, ''); name.setAttribute('aria-label', `Image ${index + 1} name`);
+    name.addEventListener('change', async () => {
+      const clean = name.value.trim() || nextName(); step.name = clean.toLowerCase().endsWith('.png') ? clean : `${clean}.png`;
+      name.value = step.name.replace(/\.png$/i, ''); await db('put', step);
+    });
+    const remove = document.createElement('button'); remove.className = 'delete-row'; remove.type = 'button'; remove.textContent = '×'; remove.title = 'Remove image';
+    remove.addEventListener('click', async () => { await db('delete', step.id); const url = state.urls.get(step.id); if (url) URL.revokeObjectURL(url); state.urls.delete(step.id); state.steps = state.steps.filter(item => item.id !== step.id); render(); });
+    row.append(image, name, remove); grid.append(row);
   }
 }
 async function addImage(blob, name = '', description = '') {
   const safeBlob = blob.type === 'image/png' ? blob : await convertToPng(blob);
   const item = { id: makeId(), name: name || `${nextName()}.png`, description, blob: safeBlob, createdAt: Date.now() };
   state.steps.push(item); await db('put', item); render();
-  if (state.directory) saveToFolder(item).catch(() => toast('Saved in browser. Folder access is unavailable.'));
   return item;
 }
 async function convertToPng(blob) {
@@ -71,14 +69,26 @@ async function convertToPng(blob) {
   return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
 }
 async function saveToFolder(item) {
-  const filename = item.name.toLowerCase().endsWith('.png') ? item.name : `${item.name}.png`;
+  const base = item.name.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_').trim() || 'image';
+  const filename = base.toLowerCase().endsWith('.png') ? base : `${base}.png`;
   const handle = await state.directory.getFileHandle(filename, { create: true });
   const writer = await handle.createWritable(); await writer.write(item.blob); await writer.close();
 }
 async function chooseFolder() {
   if (!window.showDirectoryPicker) { toast('Folder access requires Chrome or Edge. Images remain saved in this browser.'); return; }
-  try { state.directory = await window.showDirectoryPicker({ mode: 'readwrite' }); toast(`Folder selected: ${state.directory.name}`); }
+  try { state.directory = await window.showDirectoryPicker({ mode: 'readwrite' }); toast(`Save folder: ${state.directory.name}`); }
   catch (error) { if (error.name !== 'AbortError') toast('Could not open this folder.'); }
+}
+async function saveImagesToFolder() {
+  if (!state.steps.length) { toast('Capture an image first.'); return; }
+  if (!state.directory) { await chooseFolder(); if (!state.directory) return; }
+  try { for (const step of state.steps) await saveToFolder(step); toast(`${state.steps.length} image(s) saved to ${state.directory.name}.`); }
+  catch (error) { toast(error.message || 'Could not save images to this folder.'); }
+}
+function showWorkspace() { $('homeScreen').hidden = true; $('workspace').hidden = false; refreshTabPreview(); }
+async function refreshTabPreview() {
+  try { const dataUrl = await chrome.tabs.captureVisibleTab(); $('tabPreview').src = dataUrl; $('tabPreview').hidden = false; $('previewPlaceholder').hidden = true; }
+  catch (error) { toast('Click the Python SOP toolbar icon on a web page, then refresh the preview.'); }
 }
 async function shareScreen() {
   try {
@@ -107,6 +117,7 @@ async function captureScreen() {
 async function captureCurrentTab() {
   try {
     const dataUrl = await chrome.tabs.captureVisibleTab();
+    $('tabPreview').src = dataUrl; $('tabPreview').hidden = false; $('previewPlaceholder').hidden = true;
     const blob = await (await fetch(dataUrl)).blob();
     await addImage(blob);
     toast('Captured current tab.');
@@ -183,8 +194,10 @@ async function saveCurrentEditorForNavigation() {
 async function copyForWord() {
   if (!state.steps.length) { toast('Add images first.'); return; }
   const htmlParts=[]; const plain=[];
-  for(const step of state.steps){const data=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(step.blob);});htmlParts.push(`<p><img src="${data}" style="max-width:100%;height:auto"></p><p>${escapeHtml(step.name.replace(/\.[^.]+$/,''))}</p><p>${escapeHtml(step.description).replace(/\n/g,'<br>')}</p>`);plain.push(`[Image]\n${step.name}\n${step.description}`);}
-  try { await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([`<html><body>${htmlParts.join('')}</body></html>`],{type:'text/html'}),'text/plain':new Blob([plain.join('\n\n')],{type:'text/plain'})})]); toast('Copied. Paste into Word with Ctrl+V.'); }
+  for(const step of state.steps){const data=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(step.blob);});const title=step.name.replace(/\.[^.]+$/,'');htmlParts.push(`<p><img src="${data}" style="max-width:100%;height:auto"></p><p>${escapeHtml(title)}</p><br>`);plain.push(`[Image]\n${title}`);}
+  const description=$('sopDescription').value.trim();
+  if(description){htmlParts.push(`<p>${escapeHtml(description).replace(/\n/g,'<br>')}</p>`);plain.push(`Description\n${description}`);}
+  try { await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([`<html><body style="font-family:Tahoma,Arial,sans-serif">${htmlParts.join('')}</body></html>`],{type:'text/html'}),'text/plain':new Blob([plain.join('\n\n')],{type:'text/plain'})})]); toast('Copied. Paste into Word with Ctrl+V.'); }
   catch(error){toast('Clipboard access was blocked. Allow clipboard access and try again.');}
 }
 function escapeHtml(text){return text.replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
@@ -200,19 +213,15 @@ const editorCanvas=$('editorCanvas');
 editorCanvas.addEventListener('pointerdown',event=>{if(!state.image)return;const rect=editorCanvas.getBoundingClientRect();const x=(event.clientX-rect.left)*editorCanvas.width/rect.width,y=(event.clientY-rect.top)*editorCanvas.height/rect.height;state.drag={x,y};editorCanvas.setPointerCapture(event.pointerId);});
 editorCanvas.addEventListener('pointermove',event=>{if(!state.drag)return;const rect=editorCanvas.getBoundingClientRect();const x=(event.clientX-rect.left)*editorCanvas.width/rect.width,y=(event.clientY-rect.top)*editorCanvas.height/rect.height;drawEditor({x:state.drag.x,y:state.drag.y,w:x-state.drag.x,h:y-state.drag.y});});
 editorCanvas.addEventListener('pointerup',event=>{if(!state.drag)return;const rect=editorCanvas.getBoundingClientRect();const x=(event.clientX-rect.left)*editorCanvas.width/rect.width,y=(event.clientY-rect.top)*editorCanvas.height/rect.height;const start=state.drag;state.drag=null;const before={boxes:structuredClone(state.boxes),crop:state.crop&&[...state.crop]};if(Math.abs(x-start.x)>5&&Math.abs(y-start.y)>5){const coords=[Math.round(Math.min(start.x,x)/state.scale),Math.round(Math.min(start.y,y)/state.scale),Math.round(Math.max(start.x,x)/state.scale),Math.round(Math.max(start.y,y)/state.scale)];if(state.mode==='red')state.boxes.push(coords);else state.crop=coords;state.undoStack.push(before);}drawEditor();updateEditorControls();});
-$('shareButton').addEventListener('click',shareScreen);$('captureButton').addEventListener('click',captureScreen);$('stopShareButton').addEventListener('click',stopScreenShare);
-$('captureTabButton').addEventListener('click',captureCurrentTab);
-$('uploadButton').addEventListener('click',()=>$('fileInput').click());$('fileInput').addEventListener('change',event=>uploadFiles(event.target.files));
-$('folderButton').addEventListener('click',chooseFolder);$('copyWordButton').addEventListener('click',copyForWord);$('clearAllButton').addEventListener('click',clearAll);
+$('startButton').addEventListener('click',showWorkspace);$('homeButton').addEventListener('click',()=>{$('workspace').hidden=true;$('homeScreen').hidden=false;});
+$('previewRefreshButton').addEventListener('click',refreshTabPreview);$('captureTabButton').addEventListener('click',captureCurrentTab);
+$('addRowButton').addEventListener('click',()=>$('fileInput').click());$('fileInput').addEventListener('change',event=>{uploadFiles(event.target.files);event.target.value='';});
+$('folderButton').addEventListener('click',chooseFolder);$('saveImagesButton').addEventListener('click',saveImagesToFolder);$('copyWordButton').addEventListener('click',copyForWord);$('clearAllButton').addEventListener('click',clearAll);
+$('sopDescription').value=localStorage.getItem('python-sop-description')||'';$('sopDescription').addEventListener('input',event=>localStorage.setItem('python-sop-description',event.target.value));
 $('cropModeButton').addEventListener('click',()=>{state.mode='crop';updateEditorControls();});$('redModeButton').addEventListener('click',()=>{state.mode='red';updateEditorControls();});
 $('undoButton').addEventListener('click',()=>{const previous=state.undoStack.pop();if(previous){state.boxes=previous.boxes;state.crop=previous.crop;drawEditor();updateEditorControls();}});
 $('previousButton').addEventListener('click',()=>moveEditor(-1));$('nextButton').addEventListener('click',()=>moveEditor(1));$('deleteImageButton').addEventListener('click',deleteCurrent);
 $('editForm').addEventListener('submit',event=>{event.preventDefault();saveCurrentEditor();});
 $('closeEditButton').addEventListener('click',()=>$('editDialog').close());$('cancelEditButton').addEventListener('click',()=>$('editDialog').close());
-window.addEventListener('keydown',event=>{
-  const target=event.target;
-  const typing=target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
-  if(event.code==='Space'&&state.stream&&!typing&&!$('editDialog').open){event.preventDefault();captureScreen();}
-});
-window.addEventListener('beforeunload',stopScreenShare);
+window.addEventListener('beforeunload',()=>{state.stream?.getTracks().forEach(track=>track.stop());});
 (async()=>{try{state.steps=await db('getAll');state.steps.sort((a,b)=>a.createdAt-b.createdAt);render();}catch(error){toast('Browser storage is unavailable.');}})();
