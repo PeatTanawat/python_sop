@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Sara SOP Capture",
-  "version": "1.2.0",
-  "description": "Capture Chrome tabs and organize screenshots into SOP steps.",
+  "version": "1.3.0",
+  "description": "Capture or import images, organize them into SOP steps, and add descriptions.",
   "minimum_chrome_version": "116",
   "permissions": ["activeTab", "sidePanel", "clipboardWrite"],
   "background": {

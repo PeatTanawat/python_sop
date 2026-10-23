@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -9,7 +9,25 @@
   <link rel="stylesheet" href="/brand.css">
 </head>
 <body>
-  <div class="app-shell">
+  <main class="privacy-screen" id="privacyScreen">
+    <div class="privacy-brand"><span class="brand-mark">S</span><span>Sara SOP</span></div>
+    <article class="privacy-card">
+      <div class="eyebrow">YOUR PRIVACY</div><h1>Privacy Policy</h1><p class="privacy-updated">Last updated: October 24, 2026</p>
+      <div class="privacy-copy">
+        <h2>Introduction</h2><p>Sara SOP helps you capture or import images and organize them into step-by-step standard operating procedures (SOPs). You can use the service without creating an account.</p>
+        <h2>Information We Collect</h2><p>The browser app does not send your SOP content to its developer. Screenshots captured from a screen you choose, images you select from your device, image names, and descriptions are stored in this browser. The Chrome extension stores captured or selected images and descriptions locally in Chrome.</p>
+        <h2>How We Use Information</h2><p>Information is used only to display, edit, organize, save, and copy your SOP content. If you choose Copy for Document, the selected content is placed on your device's clipboard. If you choose a folder, image files are written to that folder at your direction.</p>
+        <h2>Data Storage and Security</h2><p>Your SOP content remains in browser storage on your device until you delete it or clear browser data. Saved files remain in the folder you selected. Sara SOP does not upload or synchronize SOP content. Anyone with access to your browser profile or selected folder may be able to access your files.</p>
+        <h2>Third-Party Services</h2><p>The Chrome extension does not use analytics, advertising, or third-party data processing services. The browser app loads typefaces from Google Fonts; your browser makes requests to Google to retrieve those font files. The app does not send SOP content or screenshots to Google Fonts.</p>
+        <h2>Changes to This Policy</h2><p>This policy may be updated when Sara SOP changes. The latest version and its revision date will be available on the Privacy Policy page.</p>
+        <h2>Contact Us</h2><p>For privacy questions, contact <a href="mailto:yv83773@gmail.com">yv83773@gmail.com</a>.</p>
+      </div>
+      <label class="privacy-consent"><input type="checkbox" id="privacyConsent"><span>I have read and agree to this Privacy Policy.</span></label>
+      <button class="privacy-start" id="privacyStartButton" disabled>Start</button>
+      <p class="privacy-policy-link"><a href="/privacy-policy.html">View the full Privacy Policy</a></p>
+    </article>
+  </main>
+  <div class="app-shell" id="appShell" hidden>
     <aside class="sidebar">
       <a class="brand" href="#" aria-label="Sara SOP home"><span class="brand-mark">S</span><span>Sara SOP</span></a>
       <div class="side-caption">WORKSPACE</div>
@@ -21,24 +39,24 @@
       <header class="topbar">
         <div class="breadcrumb">Workspace <span>/</span> New SOP</div>
         <a class="button button-light" href="/extension.html">Chrome side panel</a>
-        <button class="button button-light" id="folderButton"><span>📁</span> Save folder</button>
+        <button class="button button-light" id="folderButton">Save folder</button>
       </header>
 
       <section class="page-heading">
         <div><div class="eyebrow">SOP BUILDER</div><h1>Create a step-by-step guide</h1>
           <p>Capture a screen or add images, then label and organize each step.</p></div>
-        <button class="button button-primary" id="copyWordButton"><span>▣</span> Copy for Word</button>
+        <button class="button button-primary" id="copyDocumentButton">Copy for Document</button>
       </section>
 
       <section class="capture-card">
-        <div class="capture-head"><div class="capture-symbol">⌕</div><div><h2>Capture images</h2><p>Choose a screen to share, or upload screenshots from your computer.</p></div></div>
+        <div class="capture-head"><div class="capture-symbol">●</div><div><h2>Capture images</h2><p>Choose a screen to share, or upload screenshots from your computer.</p></div></div>
         <div class="capture-actions">
-          <button class="button button-primary" id="shareButton"><span>▣</span> Share screen</button>
-          <button class="button button-light" id="captureButton" disabled><span>◎</span> Capture <kbd>Space</kbd></button>
-          <button class="button button-light" id="uploadButton"><span>↑</span> Upload images</button>
+          <button class="button button-primary" id="shareButton">Share screen</button>
+          <button class="button button-light" id="captureButton" disabled>Capture <kbd>C</kbd></button>
+          <button class="button button-light" id="uploadButton">↑ Upload images</button>
           <input id="fileInput" type="file" accept="image/*" multiple hidden>
           <button class="button button-quiet" id="stopShareButton" hidden>Stop sharing</button>
-          <span class="capture-hint" id="captureHint">Share the app window, then click Capture or press Space here.</span>
+          <span class="capture-hint" id="captureHint">Share the app window, then click Capture or press C here.</span>
         </div>
         <div class="share-preview" id="sharePreview" hidden><video id="screenVideo" autoplay muted playsinline></video><span>Screen share preview</span></div>
       </section>
@@ -63,9 +81,9 @@
           <label class="field-label" for="imageName">Image name</label><input id="imageName" class="text-input" maxlength="120" required>
           <label class="field-label" for="imageDescription">Description</label><textarea id="imageDescription" class="text-input description-input" rows="5" placeholder="Describe this step..."></textarea>
           <div class="editor-tools"><span class="field-label">Markup</span><div class="tool-row">
-            <button type="button" class="button button-light tool-button selected" id="cropModeButton">⌗ Crop</button>
-            <button type="button" class="button button-light tool-button" id="redModeButton">▱ Red box</button>
-          </div><button type="button" class="button button-light undo-button" id="undoButton">↶ Undo</button>
+            <button type="button" class="button button-light tool-button selected" id="cropModeButton">Crop</button>
+            <button type="button" class="button button-light tool-button" id="redModeButton">Red box</button>
+          </div><button type="button" class="button button-light undo-button" id="undoButton">Undo</button>
           <p class="tool-note" id="toolNote">Drag on the image to select a crop area.</p></div>
           <div class="editor-navigation"><button type="button" class="button button-light" id="previousButton">← Previous</button><span id="imagePosition">1 of 1</span><button type="button" class="button button-light" id="nextButton">Next →</button></div>
         </aside>
@@ -78,3 +96,4 @@
   <script src="/app.js" defer></script>
 </body>
 </html>
+

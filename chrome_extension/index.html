@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -9,67 +9,61 @@
   <link rel="stylesheet" href="brand.css">
 </head>
 <body class="extension-mode">
-  <section class="home-screen" id="homeScreen">
+  <main class="privacy-screen" id="privacyScreen">
+    <div class="privacy-brand"><span class="brand-mark">S</span><span>Sara SOP Capture</span></div>
+    <article class="privacy-card">
+      <div class="eyebrow">YOUR PRIVACY</div><h1>Privacy Policy</h1><p class="privacy-updated">Last updated: October 24, 2026</p>
+      <div class="privacy-copy">
+        <h2>Introduction</h2><p>Sara SOP Capture helps you capture screenshots of browser tabs and organize them into step-by-step standard operating procedures (SOPs). You can use the extension without creating an account.</p>
+        <h2>Information We Collect</h2><p>The extension does not send your information to us. Screenshots you capture and images you choose from your device, their names, and your descriptions are stored locally in your browser. The extension accesses the active tab only when you invoke its capture or preview features.</p>
+        <h2>How We Use Information</h2><p>Local information is used only to display, edit, organize, and copy your SOP content. If you choose Copy for Document, the extension places your selected SOP content on your device's clipboard. If you choose a folder, you control where image files are saved. Choosing a folder is optional; you can save images there when you choose.</p>
+        <h2>Data Storage and Security</h2><p>Images are kept in browser storage on your device until you delete them or clear the extension's browser data. When you explicitly save images, copies are written to the folder you selected. The extension does not upload or synchronize this content. Anyone with access to your browser profile or selected folder may be able to access the files.</p>
+        <h2>Third-Party Services</h2><p>Sara SOP Capture does not use analytics, advertising, remote servers, or third-party data processing services.</p>
+        <h2>Changes to This Policy</h2><p>We may update this policy when the extension changes. The latest version and its revision date will be available here.</p>
+        <h2>Contact Us</h2><p>For privacy questions, contact: <a href="mailto:yv83773@gmail.com">yv83773@gmail.com</a></p>
+      </div>
+      <label class="privacy-consent"><input type="checkbox" id="privacyConsent"><span>I have read and agree to this Privacy Policy.</span></label>
+      <button class="start-button" id="startButton" disabled><span class="start-label">Start</span><span class="start-spinner" aria-hidden="true" hidden></span></button>
+    </article>
+  </main>
+  <section class="home-screen" id="homeScreen" hidden>
     <div class="home-brand"><span class="brand-mark">S</span><span>Sara SOP</span></div>
-    <button class="start-round" id="startButton" aria-label="Start creating an SOP"><span>＋</span></button>
+    <button class="start-round" id="startNewSopButton" aria-label="Start creating an SOP">Start</button>
     <h1>Start a new SOP</h1>
     <p>Capture this tab and build your guide step by step.</p>
   </section>
 
   <main class="workspace" id="workspace" hidden>
     <header class="topbar">
-      <button class="back-button" id="homeButton" title="Home" aria-label="Home">←</button>
       <div class="top-title"><strong>Sara SOP</strong><span>Capture workspace</span></div>
-      <button class="icon-button" id="folderButton" title="Choose save folder" aria-label="Choose save folder">▰</button>
+      <button class="icon-button" id="folderButton" title="Choose save folder" aria-label="Choose save folder">Folder</button>
     </header>
 
     <section class="preview-card">
       <div class="section-head"><div><h2>Current tab</h2><p>Live preview updates up to twice per second.</p></div>
-        <button class="small-button" id="previewRefreshButton" title="Refresh preview">↻</button></div>
+        <button class="small-button" id="previewRefreshButton" title="Restart Sara SOP">↻</button></div>
       <div class="preview-frame"><img id="tabPreview" alt="Live preview of the current Chrome tab" hidden><div id="previewPlaceholder">Live preview starts when you open the workspace.</div></div>
-      <button class="capture-button" id="captureTabButton"><span>◎</span> Capture</button>
+      <button class="capture-button" id="captureTabButton"><span>●</span> Capture</button>
     </section>
 
     <section class="steps-section">
-      <div class="section-head"><div><h2>Captured images <span class="count-pill" id="stepCount">0</span></h2><p>Images stay in capture order.</p></div>
-        <button class="small-button add-row" id="addRowButton">＋ Add row</button></div>
+      <div class="section-head"><div><h2>Captured images <span class="count-pill" id="stepCount">0</span></h2><p>Images stay in capture order.</p></div></div>
       <div class="empty-state" id="emptyState">Your captured images will appear here.</div>
       <div class="steps-list" id="stepsGrid"></div>
-      <input id="fileInput" type="file" accept="image/*" multiple hidden>
       <button class="text-button" id="clearAllButton" hidden>Clear all images</button>
-    </section>
-
-    <section class="description-section">
-      <label for="sopDescription">Description</label>
-      <textarea id="sopDescription" rows="4" placeholder="Write one description for this SOP..."></textarea>
+      <section class="description-groups">
+        <div class="section-head"><div><h2>Descriptions</h2><p>Descriptions are grouped by the images they explain.</p></div></div>
+        <div class="description-groups-list" id="descriptionGroupsList"></div>
+        <div class="description-groups-empty" id="descriptionGroupsEmpty">No descriptions yet. Add one in the full-page editor.</div>
+      </section>
     </section>
 
     <footer class="actions-bar">
       <button class="button button-light" id="saveImagesButton">Save images</button>
-      <button class="button button-primary" id="copyWordButton">Copy for Word</button>
+      <button class="button button-primary" id="copyDocumentButton">Copy for Document</button>
     </footer>
     <footer class="copyright-footer">© Tanawat</footer>
   </main>
-
-  <dialog id="editDialog" class="edit-dialog">
-    <form method="dialog" class="dialog-shell" id="editForm">
-      <header class="dialog-header"><div><div class="eyebrow">IMAGE <span id="editStepNumber">01</span></div><h2>Edit image</h2></div><button type="button" class="icon-button" id="closeEditButton" aria-label="Close">×</button></header>
-      <div class="editor-layout">
-        <div class="editor-canvas-wrap"><canvas id="editorCanvas" width="900" height="540"></canvas></div>
-        <aside class="editor-sidebar">
-          <label class="field-label" for="imageName">Image name</label><input id="imageName" class="text-input" maxlength="120" required>
-          <label class="field-label" for="imageDescription">Image note (optional)</label><textarea id="imageDescription" class="text-input description-input" rows="3"></textarea>
-          <div class="editor-tools"><span class="field-label">Markup</span><div class="tool-row">
-            <button type="button" class="button button-light tool-button selected" id="cropModeButton">Crop</button>
-            <button type="button" class="button button-light tool-button" id="redModeButton">Red box</button>
-          </div><button type="button" class="button button-light undo-button" id="undoButton">Undo</button>
-          <p class="tool-note" id="toolNote">Drag on the image to select a crop area.</p></div>
-          <div class="editor-navigation"><button type="button" class="button button-light" id="previousButton">←</button><span id="imagePosition">1 of 1</span><button type="button" class="button button-light" id="nextButton">→</button></div>
-        </aside>
-      </div>
-      <footer class="dialog-footer"><button type="button" class="button button-light" id="deleteImageButton">Delete image</button><span class="footer-spacer"></span><button type="button" class="button button-light" id="cancelEditButton">Cancel</button><button type="submit" class="button button-primary">Save</button></footer>
-    </form>
-  </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="app.js" defer></script>

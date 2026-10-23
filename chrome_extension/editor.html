@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#741b35">
+  <title>Edit SOP images — Sara SOP Capture</title>
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <header class="editor-topbar">
+    <div class="brand"><span class="brand-mark">S</span><span>Sara SOP Capture</span></div>
+    <div class="topbar-actions"><span id="saveStatus" role="status">Changes are saved on this device</span></div>
+  </header>
+  <main class="page-shell">
+    <section class="gallery-section">
+      <div class="section-heading"><div><p class="eyebrow">YOUR SOP</p><h1>All images</h1><p class="gallery-hint">Drag images to change their order. Click an image to edit it.</p></div><span class="image-count" id="imageCount">0 images</span></div>
+      <div class="gallery" id="imageGallery" aria-label="All captured images"></div>
+      <input id="addImageInput" type="file" accept="image/*" multiple hidden>
+      <p class="empty-message" id="emptyMessage" hidden>No images yet. Capture a browser tab in Sara SOP first.</p>
+    </section>
+
+    <section class="edit-layout" id="editLayout" hidden>
+      <div class="image-panel">
+        <div class="image-heading"><div><p class="eyebrow" id="imagePosition">IMAGE 1 OF 1</p><h2 id="imageTitle">Image</h2></div><span class="tip">Click and drag on the image to mark an area</span></div>
+        <div class="image-stage" id="imageStage">
+          <canvas id="markupCanvas" aria-label="Selected image. Drag to draw a red box"></canvas>
+          <button class="image-nav previous" id="previousImage" aria-label="Previous image" title="Previous image"><svg viewBox="0 0 16 28" aria-hidden="true"><path d="M15 2 2 14l13 12z"/></svg></button>
+          <button class="image-nav next" id="nextImage" aria-label="Next image" title="Next image"><svg viewBox="0 0 16 28" aria-hidden="true"><path d="m1 2 13 12L1 26z"/></svg></button>
+        </div>
+      </div>
+      <aside class="tools-panel">
+        <label for="imageName">Image name</label>
+        <input id="imageName" class="image-name-input" type="text" maxlength="120" placeholder="Name this image">
+        <div class="description-range">
+          <label for="descriptionStart">Description for which images?</label>
+          <div class="range-fields"><select id="descriptionStart" aria-label="First image in description range"></select><span>to</span><select id="descriptionEnd" aria-label="Last image in description range"></select></div>
+        </div>
+        <label for="sopDescription">Description</label>
+        <textarea id="sopDescription" rows="5" placeholder="Describe what happens in this image group..."></textarea>
+        <div class="markup-tools"><p class="tool-label">Markup</p><div class="tool-buttons"><button class="tool-button icon-tool selected" id="redBoxButton" type="button" aria-label="Red box" title="Red box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="4.5" width="15" height="15" rx="1.5"/></svg></button><button class="tool-button icon-tool" id="undoButton" type="button" aria-label="Undo last red box" title="Undo" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8H4V4"/><path d="M4.5 8a8 8 0 1 1-.2 8"/></svg></button></div><p class="tool-hint">Draw boxes directly on the image to highlight important details.</p></div>
+        <button id="saveButton" class="primary-button tools-save">Save changes</button>
+      </aside>
+    </section>
+  </main>
+  <dialog class="group-alert" id="groupAlert">
+    <div class="alert-icon" aria-hidden="true">!</div>
+    <h2>Image order is linked to a Description</h2>
+    <p class="alert-range" id="alertRange"></p>
+    <p id="alertDescription"></p>
+    <p>Moving one image by itself would change which images this Description covers. Adjust the Description range first, then reorder the images.</p>
+    <button id="closeGroupAlert" class="primary-button">Got it</button>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="editor.js" defer></script>
+</body>
+</html>

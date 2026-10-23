@@ -7,7 +7,7 @@ This is the browser version of the SOP screenshot tool. It is a static site and 
 - Share a screen or app window and capture it after a short countdown.
 - Upload one or more existing screenshots.
 - Crop images, draw multiple red boxes, and undo edits.
-- Add image names and descriptions, then copy the SOP to Word.
+- Add image names and descriptions, then copy the SOP to a document.
 - Optionally choose a local output folder in Chrome or Edge.
 - Keep the workspace in browser storage; screenshots are not uploaded to the web host.
 
